@@ -1,9 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Calendar.Api.Entities;
 using Calendar.Api.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Calendar.Api.Repositories
 {
@@ -20,7 +20,7 @@ namespace Calendar.Api.Repositories
 
     public class EventRepository : IEventRepository
     {
-        private EventDbContext _dbContext;
+        private readonly EventDbContext _dbContext;
         public EventRepository(EventDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -34,14 +34,14 @@ namespace Calendar.Api.Repositories
 
         public async Task DeleteEvent(int eventId)
         {
-            var calendarEvent = await GetEventById(eventId);
+            CalendarEvent calendarEvent = await GetEventById(eventId);
             _dbContext.CalendarEvents.Remove(calendarEvent);
             await _dbContext.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<CalendarEvent>> FilterEvents(string organizer, string location, string name, int? eventId)
         {
-            var query = _dbContext.CalendarEvents.AsQueryable();
+            IQueryable<CalendarEvent> query = _dbContext.CalendarEvents.AsQueryable();
             if (organizer != null)
             {
                 query = query.Where(x => x.EventOrganizer == organizer);
@@ -64,7 +64,7 @@ namespace Calendar.Api.Repositories
 
         public async Task<CalendarEvent> GetEventById(int eventId)
         {
-            var calendarEvent = await _dbContext.CalendarEvents.FirstOrDefaultAsync(x => x.Id == eventId);
+            CalendarEvent calendarEvent = await _dbContext.CalendarEvents.FirstOrDefaultAsync(x => x.Id == eventId);
             if (calendarEvent == null)
             {
                 throw new CalendarEventNotFound(eventId);
@@ -85,7 +85,7 @@ namespace Calendar.Api.Repositories
 
         public async Task UpdateEvent(int eventId, CalendarEvent calendarEvent)
         {
-            var oldEvent = await GetEventById(eventId);
+            CalendarEvent oldEvent = await GetEventById(eventId);
             _dbContext.Entry(oldEvent).State = EntityState.Detached;
             _dbContext.CalendarEvents.Attach(calendarEvent);
             _dbContext.Entry(calendarEvent).State = EntityState.Modified;

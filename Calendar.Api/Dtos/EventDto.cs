@@ -9,7 +9,7 @@ namespace Calendar.Api.Dtos
 
         [Required]
         public string Name { get; set; }
-        
+
         [Required]
         public long? Time { get; set; }
 
