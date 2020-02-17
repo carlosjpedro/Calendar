@@ -1,11 +1,9 @@
-﻿using Calendar.Api.Serializers;
-using Newtonsoft.Json;
-using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 namespace Calendar.Api.Dtos
 {
-    public class EventDto
+    public class CalendarEventDto
     {
         public int? Id { get; set; }
 
@@ -15,8 +13,7 @@ namespace Calendar.Api.Dtos
         [Required(AllowEmptyStrings = false)]
         public string Location { get; set; }
         
-        [JsonConverter(typeof(CsvConverter))]
-        [RegularExpression("^[Aa-Zz]+(,[Aa-Zz]+)*$")]
+        [RegularExpression("^[aA-zZ]+(,[aA-zZ]+)*$")]
         public string Members { get; set; }
 
         [Required(AllowEmptyStrings = false)]        
