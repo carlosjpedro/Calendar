@@ -9,8 +9,11 @@ namespace Calendar.Api.Services
 {
     public interface ICalendarService
     {
-        Task<IEnumerable<CalendarEventDto>> GetEvents(string organizer);
+        Task<IEnumerable<CalendarEvent>> GetEvents(string organizer);
         Task AddEvent(CalendarEvent eventDto);
+        Task UpdateEvent(int eventId, CalendarEvent calendarEvent);
+        Task<IEnumerable<CalendarEvent>> GetEventsByLocation(string location);
+        Task DeleteEvent(int eventId);
     }
 
     public class CalendarService : ICalendarService
@@ -26,15 +29,23 @@ namespace Calendar.Api.Services
             return _eventRepository.AddEvent(eventDto);
         }
 
+        public Task DeleteEvent(int eventId)
+        {
+            throw new System.NotImplementedException();
+        }
 
-        public Task<IEnumerable<CalendarEventDto>> GetEvents(string organizer) =>
-            new Fixture().CreateManyAsync<CalendarEventDto>(20);
+        public Task<IEnumerable<CalendarEvent>> GetEvents(string organizer) =>
+             _eventRepository.GetEventsByOrganizer(organizer);
+            
 
-    }
+        public Task<IEnumerable<CalendarEvent>> GetEventsByLocation(string location)
+        {
+            return _eventRepository.GetEventsByLocation(location);
+        }
 
-    public static class AutoFixtureExtensions
-    {
-        public static Task<IEnumerable<T>> CreateManyAsync<T>(this Fixture fixture, int count) =>
-            Task.FromResult(fixture.CreateMany<T>(count));
+        public Task UpdateEvent(int eventId, CalendarEvent calendarEvent)
+        {
+            return _eventRepository.UpdateEvent(eventId, calendarEvent);
+        }
     }
 }

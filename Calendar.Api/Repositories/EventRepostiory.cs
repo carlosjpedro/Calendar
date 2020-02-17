@@ -20,9 +20,9 @@ namespace Calendar.Api.Repositories
     public class EventRepository : IEventRepository
     {
         private EventDbContext _dbContext;
-        public EventRepository(EventDbContext dbContenxt)
+        public EventRepository(EventDbContext dbContext)
         {
-            _dbContext = dbContenxt;
+            _dbContext = dbContext;
         }
 
         public async Task AddEvent(CalendarEvent calendarEvent)
