@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Calendar.Api.Dtos;
 using Calendar.Api.Entities;
+using Calendar.Api.Exceptions;
 using Calendar.Api.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,7 +15,7 @@ namespace Calendar.Api.Controllers
     [ApiController]
     [Route("[controller]")]
     public class CalendarController : ControllerBase
-    {        
+    {
         private readonly ICalendarService _calendarService;
         private readonly IMapper _mapper;
 
@@ -25,15 +26,17 @@ namespace Calendar.Api.Controllers
         }
 
         [HttpGet]
-        public Task<IEnumerable<CalendarEventDto>> Get(string organizer) 
+        [Route("query")]
+        public async Task<IEnumerable<CalendarEventDto>> Get(string organizer, string location, string name, int? eventId)
         {
-            return _calendarService.GetEvents(organizer);
-        }
-
-        [HttpGet]
-        public Task<IEnumerable<CalendarEventDto>> GetEventsByLocation(string location)
-        {
-            return _calendarService.GetEventsByLocation(location);
+            if(string.IsNullOrWhiteSpace(organizer) && string.IsNullOrWhiteSpace(location)
+            && string.IsNullOrWhiteSpace(name) && !eventId.HasValue)
+            {
+                throw new InvalidRequest();
+            }
+            
+            var calendarEvents = await _calendarService.GetEvents(organizer, location, name, eventId);
+            return _mapper.Map<IEnumerable<CalendarEventDto>>(calendarEvents);
         }
 
         [HttpPost]
@@ -42,16 +45,16 @@ namespace Calendar.Api.Controllers
             var calendarEvent = _mapper.Map<CalendarEvent>(eventDto);
             return _calendarService.AddEvent(calendarEvent);
         }
-        
+
         [HttpPut]
-        public async Task UpdateEvent([Required]int? eventId, CalendarEventDto eventDto)
+        public Task UpdateEvent([Required]int? eventId, CalendarEventDto eventDto)
         {
             var calendarEvent = _mapper.Map<CalendarEvent>(eventDto);
-            await _calendarService.UpdateEvent(eventId.Value, calendarEvent);
+            return _calendarService.UpdateEvent(eventId.Value, calendarEvent);
         }
 
         [HttpDelete]
-        public  Task DeleteEvent(int eventId)
+        public Task DeleteEvent(int eventId)
         {
             return _calendarService.DeleteEvent(eventId);
         }

@@ -9,10 +9,9 @@ namespace Calendar.Api.Services
 {
     public interface ICalendarService
     {
-        Task<IEnumerable<CalendarEvent>> GetEvents(string organizer);
+        Task<IEnumerable<CalendarEvent>> GetEvents(string organizer, string location, string name, int? eventId);
         Task AddEvent(CalendarEvent eventDto);
         Task UpdateEvent(int eventId, CalendarEvent calendarEvent);
-        Task<IEnumerable<CalendarEvent>> GetEventsByLocation(string location);
         Task DeleteEvent(int eventId);
     }
 
@@ -31,12 +30,16 @@ namespace Calendar.Api.Services
 
         public Task DeleteEvent(int eventId)
         {
-            throw new System.NotImplementedException();
+          return _eventRepository.DeleteEvent(eventId);
         }
 
         public Task<IEnumerable<CalendarEvent>> GetEvents(string organizer) =>
              _eventRepository.GetEventsByOrganizer(organizer);
-            
+
+        public Task<IEnumerable<CalendarEvent>> GetEvents(string organizer, string location, string name, int? eventId)
+        {
+                     return _eventRepository.FilterEvents( organizer,  location,  name, eventId);
+        }
 
         public Task<IEnumerable<CalendarEvent>> GetEventsByLocation(string location)
         {

@@ -10,7 +10,7 @@ namespace Calendar.Api.Profiles
         public CalendarEventProfile()
         {
             CreateMap<CalendarEventDto, CalendarEvent>()
-            .ConstructUsing(x => new CalendarEvent(x.Time.Value, x.Location, x.Members, x.EventOrganizer))
+            .ConstructUsing(x => new CalendarEvent(x.Name, x.Time.Value, x.Location, x.Members, x.EventOrganizer))
             .ReverseMap();
 
         }

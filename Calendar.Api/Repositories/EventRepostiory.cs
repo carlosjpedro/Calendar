@@ -15,6 +15,7 @@ namespace Calendar.Api.Repositories
         Task DeleteEvent(int eventId);
         Task<CalendarEvent> GetEventById(int eventId);
         Task UpdateEvent(int eventId, CalendarEvent calendarEvent);
+        Task<IEnumerable<CalendarEvent>> FilterEvents(string organizer, string location, string name, int? eventId);
     }
 
     public class EventRepository : IEventRepository
@@ -36,6 +37,29 @@ namespace Calendar.Api.Repositories
             var calendarEvent = await GetEventById(eventId);
             _dbContext.CalendarEvents.Remove(calendarEvent);
             await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<CalendarEvent>> FilterEvents(string organizer, string location, string name, int? eventId)
+        {
+            var query = _dbContext.CalendarEvents.AsQueryable();
+            if (organizer != null)
+            {
+                query = query.Where(x => x.EventOrganizer == organizer);
+            }
+            if (location != null)
+            {
+                query = query.Where(x => x.Location == location);
+            }
+            if (name != null)
+            {
+                query = query.Where(x => x.Name == name);
+            }
+            if (eventId.HasValue)
+            {
+                query = query.Where(x => x.Id == eventId.Value);
+            }
+
+            return await query.ToListAsync();
         }
 
         public async Task<CalendarEvent> GetEventById(int eventId)
@@ -62,7 +86,9 @@ namespace Calendar.Api.Repositories
         public async Task UpdateEvent(int eventId, CalendarEvent calendarEvent)
         {
             var oldEvent = await GetEventById(eventId);
+            _dbContext.Entry(oldEvent).State = EntityState.Detached;
             _dbContext.CalendarEvents.Attach(calendarEvent);
+            _dbContext.Entry(calendarEvent).State = EntityState.Modified;
             await _dbContext.SaveChangesAsync();
         }
     }
